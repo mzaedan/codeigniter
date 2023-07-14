@@ -3,9 +3,17 @@ class Auth extends CI_Controller
 {
     public function index()
     {
-        $this->load->view('templates/auth_header');
-        $this->load->view('auth/login');
-        $this->load->view('templates/auth_footer');
+        $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
+        $this->form_validation->set_rules('password', 'Password', 'trim|required');
+
+        if ($this->form_validation->run() == false) {
+
+            $this->load->view('templates/auth_header');
+            $this->load->view('auth/login');
+            $this->load->view('templates/auth_footer');
+        } else {
+            $this->_login();
+        }
     }
 
     private function _login()
@@ -80,5 +88,14 @@ class Auth extends CI_Controller
             $this->db->insert('user', $data);
             redirect('auth');
         }
+    }
+
+    public function logout()
+    {
+        $this->session->unset_userdata('email');
+        $this->session->unset_userdata('role_id');
+
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">You have been logged out!</div>');
+        redirect('auth');
     }
 }
